@@ -15,8 +15,7 @@ class MovieListViewModel(
     private val context: Context
 ) : ViewModel() {
 
-    val liveData: MutableLiveData<List<Movie>>()
-
+    val liveData = MutableLiveData<List<Movie>>()
 
     fun getMovie(){
         RetrofitService
@@ -29,6 +28,8 @@ class MovieListViewModel(
                 ) {
                     if(response.isSuccessful){
                         val list = response.body()!!.getResults()
+                        liveData.postValue(list)
+
                     }
                 }
 
