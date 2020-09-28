@@ -15,9 +15,10 @@ class MovieListViewModel(
     private val context: Context
 ) : ViewModel() {
 
-    val liveData = MutableLiveData<List<Movie>>()
+    val liveData = MutableLiveData<State>()
 
     fun getMovie(){
+        liveData.value = State.ShowLoading
         RetrofitService
             .getMovie()
             .getPopularMovies("633b0d5400a1437826672c9966199c0b")
@@ -28,18 +29,22 @@ class MovieListViewModel(
                 ) {
                     if(response.isSuccessful){
                         val list = response.body()!!.getResults()
-                        liveData.postValue(list)
-
+                        liveData.postValue(State.Result(list))
+                        liveData.value = State.HideLoading
                     }
                 }
-
                 override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
                     Toast.makeText(context, "ERROR - 400", Toast.LENGTH_SHORT).show()
+                    liveData.value = State.HideLoading
                 }
-
             })
 
+    }
 
+    sealed class State(){
+        object HideLoading : State()
+        object ShowLoading : State()
+        data class Result(val list: List<Movie>?) : State()
     }
 
 }
